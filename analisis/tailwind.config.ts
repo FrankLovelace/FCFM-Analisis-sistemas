@@ -7,8 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        'uni-primary': '#1e40af', 
-        'uni-secondary': '#db2777', 
+        'uni-blue': '#004a8f',   // Azul oscuro tipo UANL
+        'uni-gold': '#fbb034',   // Amarillo/Dorado botón
+        'uni-gold-dark': '#e69b00', // Hover del botón
+        'gray-bg': '#f3f4f6'     // Fondo gris suave
       }
     },
   },
