@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import EventDetailView from '../views/EventDetailView.vue';
+import PaymentConfirmationView from '../views/PaymentConfirmationView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,6 +18,12 @@ const router = createRouter({
       name: 'Admin', 
       component: () => import('../views/DashboardView.vue'), 
       meta: { requiresAuth: true, role: 'admin' } // <--- AÑADIMOS REQUISITO DE ROL
+    },
+     { 
+      path: '/payment/:id', 
+      name: 'Payment', 
+      component: PaymentConfirmationView, 
+      meta: { requiresAuth: true } 
     },
   ]
 });

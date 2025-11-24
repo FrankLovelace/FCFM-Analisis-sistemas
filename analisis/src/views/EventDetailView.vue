@@ -22,8 +22,8 @@ const closeView = () => {
 
 const handleRegister = () => {
   if (authStore.isAuthenticated) {
-    alert(`¡Te has inscrito exitosamente al evento: ${event.value?.title}!`);
-    // Aquí podrías guardar la inscripción en el store si quisieras
+    // CAMBIO: Ahora redirigimos al pago con el ID del evento
+    router.push(`/payment/${event.value?.id}`);
   } else {
     // Si no está logueado, lo mandamos al login
     if(confirm("Para registrarte necesitas iniciar sesión. ¿Ir al Login?")) {
