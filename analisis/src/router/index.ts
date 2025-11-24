@@ -68,7 +68,7 @@ const router = createRouter({
 });
 
 // GUARDIÁN DE NAVEGACIÓN (Seguridad)
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const session = localStorage.getItem('uni_session');
   const userStr = localStorage.getItem('uni_user');
   const isAuthenticated = session === 'valid' && userStr;

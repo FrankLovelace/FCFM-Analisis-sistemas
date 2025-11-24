@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/AuthStore';
 import { useEventStore } from '../stores/eventStore';
 import type { UniversityEvent } from '../data/initialEvents';
 
 const authStore = useAuthStore();
-const router = useRouter();
 const eventStore = useEventStore();
 
 // --- Estados del Modal y Formulario ---
