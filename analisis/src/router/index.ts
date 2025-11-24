@@ -8,7 +8,9 @@ import RegisterView from '../views/RegisterView.vue';
 import DashboardView from '../views/DashboardView.vue';
 import EventDetailView from '../views/EventDetailView.vue';
 import PaymentConfirmationView from '../views/PaymentConfirmationView.vue';
-import MyEventsView from '../views/MyEventsView.vue'; // <--- AQUÍ ESTÁ LA VISTA NUEVA
+import MyEventsView from '../views/MyEventsView.vue'; 
+import AdminApprovalsView from '../views/Admin/AdminApprovalsView.vue';
+import AdminReportsView from '../views/Admin/AdminReportsView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -40,8 +42,6 @@ const router = createRouter({
       name: 'EventDetail', 
       component: EventDetailView 
     },
-
-    // 5. MIS EVENTOS (Requiere Auth) <-- ESTA ES LA QUE TE FALTABA
     { 
       path: '/my-events', 
       name: 'MyEvents', 
@@ -55,6 +55,15 @@ const router = createRouter({
       name: 'Payment', 
       component: PaymentConfirmationView, 
       meta: { requiresAuth: true }
+    },
+     {
+      path: '/admin',
+      component: () => import('../views/DashboardView.vue'), // Dashboard Layout
+      meta: { requiresAuth: true, role: 'admin' },
+      children: [
+        { path: '', name: 'AdminEvents', component: () => import('../components/AdminEventList.vue') }, 
+        { path: 'reports', name: 'AdminReports', component: AdminReportsView }
+      ]
     },
 
     // 7. ADMIN DASHBOARD (Requiere Auth y Rol Admin)
