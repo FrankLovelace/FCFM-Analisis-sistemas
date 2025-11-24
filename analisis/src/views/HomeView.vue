@@ -31,7 +31,8 @@ const filters = ref({
   category: '',  // '' = Todas
   faculty: '',   // '' = Todas
   modality: '',  // '' = Todas
-  price: ''      // '' = Todos
+  price: '',      // '' = Todos
+  date: ''
 });
 const handleLogout = () => {
   showUserMenu.value = false;
@@ -52,7 +53,7 @@ const applyFilters = () => {
 };
 
 const resetFilters = () => {
-  filters.value = { search: '', category: '', faculty: '', modality: '', price: '' };
+  filters.value = { search: '', category: '', faculty: '', modality: '', price: '', date: '' };
   applyFilters();
 };
 
@@ -230,12 +231,12 @@ const goToLogin = () => router.push('/login');
         </div>
 
         <!-- Grid de Filtros -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           
-          <!-- Filtro Categoría -->
+        <!-- Filtro Categoría -->
           <div class="flex flex-col gap-1">
             <label class="text-xs font-bold text-gray-500 uppercase">Categoría</label>
-            <select v-model="filters.category" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 focus:border-uni-blue focus:outline-none">
+            <select v-model="filters.category" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 outline-none">
               <option value="">Todas</option>
               <option>Académico</option>
               <option>Cultural</option>
@@ -244,10 +245,10 @@ const goToLogin = () => router.push('/login');
             </select>
           </div>
 
-          <!-- Filtro Facultad -->
+          <!-- Filtro Dependencia -->
           <div class="flex flex-col gap-1">
             <label class="text-xs font-bold text-gray-500 uppercase">Dependencia</label>
-            <select v-model="filters.faculty" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 focus:border-uni-blue focus:outline-none">
+            <select v-model="filters.faculty" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 outline-none">
               <option value="">Todas</option>
               <option>FIME</option>
               <option>FACPYA</option>
@@ -256,10 +257,16 @@ const goToLogin = () => router.push('/login');
             </select>
           </div>
 
+          <!-- NUEVO: Filtro Fecha (Visual para la fotografía) -->
+          <div class="flex flex-col gap-1">
+             <label class="text-xs font-bold text-gray-500 uppercase">Fecha</label>
+             <input type="date" v-model="filters.date" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 outline-none">
+          </div>
+
           <!-- Filtro Precio -->
           <div class="flex flex-col gap-1">
              <label class="text-xs font-bold text-gray-500 uppercase">Precio</label>
-             <select v-model="filters.price" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 focus:border-uni-blue focus:outline-none">
+             <select v-model="filters.price" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 outline-none">
                <option value="">Cualquiera</option>
                <option>Gratis</option>
                <option>Pago</option>
@@ -268,9 +275,10 @@ const goToLogin = () => router.push('/login');
 
           <!-- Botón Aplicar -->
           <div class="flex gap-2">
+             <!-- Modalidad -->
              <div class="flex-1 flex flex-col gap-1">
                 <label class="text-xs font-bold text-gray-500 uppercase">Modalidad</label>
-                <select v-model="filters.modality" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 focus:border-uni-blue focus:outline-none">
+                <select v-model="filters.modality" class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-700 outline-none">
                   <option value="">Todas</option>
                   <option>Presencial</option>
                   <option>Virtual</option>
@@ -278,12 +286,7 @@ const goToLogin = () => router.push('/login');
                 </select>
              </div>
              
-             <button 
-                @click="applyFilters"
-                class="bg-uni-blue hover:bg-blue-900 text-white font-bold py-2.5 px-4 rounded shadow-sm flex items-center gap-2 h-[42px] mt-auto transition-colors"
-              >
-                <span>Aplicar</span>
-                <span class="hidden xl:inline">Filtros</span>
+             <button @click="applyFilters" class="bg-uni-blue hover:bg-blue-900 text-white font-bold py-2.5 px-4 rounded shadow-sm h-[42px] mt-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
              </button>
           </div>
@@ -362,16 +365,6 @@ const goToLogin = () => router.push('/login');
 
         <!-- COLUMNA DERECHA: Lateral / Finalizados (4/12) -->
         <div class="lg:col-span-4 space-y-8">
-          
-          <!-- Banner / Anuncio -->
-          <div class="bg-gradient-to-br from-uni-blue to-blue-900 rounded-lg p-6 text-white text-center shadow-lg relative overflow-hidden">
-             <div class="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-uni-gold rounded-full opacity-20"></div>
-             <h3 class="font-bold text-xl mb-2 relative z-10">¿Organizas un evento?</h3>
-             <p class="text-blue-100 text-sm mb-4 relative z-10">Registra tu evento académico o cultural en el portal.</p>
-             <button @click="goToLogin" class="bg-white text-uni-blue font-bold text-sm py-2 px-4 rounded hover:bg-gray-100 transition relative z-10">
-               Acceso Administrativo
-             </button>
-          </div>
 
           <!-- Eventos Finalizados -->
           <div>
