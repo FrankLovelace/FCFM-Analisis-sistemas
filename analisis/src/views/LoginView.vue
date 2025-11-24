@@ -13,32 +13,38 @@ const errorMsg = ref('');
 
 const handleLogin = () => {
   errorMsg.value = '';
+  
+  // Validación campos vacíos
   if (!email.value || !password.value) {
-    errorMsg.value = 'Por favor completa todos los campos.';
+    errorMsg.value = 'Ocurrió un problema al procesar la solicitud: Por favor completa todos los campos.';
     return;
   }
+
   // Intentar login
   const success = authStore.login(email.value, password.value);
 
   if (success) {
     // Validar que sea rol estudiante
     if (authStore.currentUser?.role !== 'student') {
-        errorMsg.value = 'Esta cuenta es de administrador. Usa el portal administrativo.';
+        errorMsg.value = 'Ocurrió un problema al procesar la solicitud: Esta cuenta es de administrador. Usa el portal administrativo.';
         authStore.logout();
         return;
     }
     router.push('/'); // Ir a Home
   } else {
-    errorMsg.value = 'Credenciales incorrectas.';
+    // Error de credenciales
+    errorMsg.value = 'Ocurrió un problema al procesar la solicitud: Credenciales incorrectas.';
   }
 };
 
 const goToRegister = () => router.push('/register');
-const goToAdmin = () => router.push('/admin-login'); // Link al otro login
+const goToAdmin = () => router.push('/admin-login');
+const goHome = () => router.push('/'); // Acción para volver
 </script>
 
 <template>
   <div class="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#002e5f]">
+    
     <!-- Patrón de fondo -->
     <div class="absolute inset-0 opacity-10 pointer-events-none">
        <div class="absolute top-0 left-0 w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)]" style="background-size: 60px 60px;"></div>
@@ -46,8 +52,16 @@ const goToAdmin = () => router.push('/admin-login'); // Link al otro login
 
     <div class="bg-white w-full max-w-xl rounded-[30px] shadow-2xl p-8 md:p-12 relative z-10 mx-4">
       
+      <!-- Botón flotante para volver al Home -->
+      <button 
+        @click="goHome"
+        class="absolute top-4 left-4 text-gray-400 hover:text-[#002e5f] text-sm font-bold flex items-center gap-1"
+      >
+        ← Volver al Inicio
+      </button>
+
       <!-- Header -->
-      <div class="flex flex-col items-center mb-8">
+      <div class="flex flex-col items-center mb-8 mt-4">
          <div class="w-full flex justify-between items-start mb-2">
            <div class="w-16"></div>
            <div class="text-center">
@@ -55,7 +69,7 @@ const goToAdmin = () => router.push('/admin-login'); // Link al otro login
              <h2 class="text-xl font-bold text-[#e6b012] mt-1 tracking-widest uppercase">Servicios en Línea</h2>
            </div>
            <div class="w-16 md:w-20">
-             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Logo_de_la_UANL.svg/1200px-Logo_de_la_UANL.svg.png" alt="Logo" class="w-full h-auto object-contain">
+             <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Uanl_logo.png" alt="Logo" class="w-full h-auto object-contain">
            </div>
         </div>
       </div>
@@ -101,7 +115,9 @@ const goToAdmin = () => router.push('/admin-login'); // Link al otro login
     
     <!-- Error Alert -->
     <div v-if="errorMsg" class="absolute bottom-8 w-[90%] md:w-auto animate-bounce">
-      <div class="bg-[#ff6b6b] text-white font-bold py-3 px-8 rounded-full shadow-lg text-center">{{ errorMsg }}</div>
+      <div class="bg-[#ff6b6b] text-white font-bold py-3 px-8 rounded-full shadow-lg text-center">
+        {{ errorMsg }}
+      </div>
     </div>
   </div>
 </template>
