@@ -4,12 +4,15 @@ import { ref, computed } from 'vue';
 import type { UniversityEvent } from '../data/initialEvents';
 import { initialEvents } from '../data/initialEvents';
 
-// Extendemos la interfaz para incluir el estado y métricas simuladas
+// Extendemos la interfaz para incluir el estado, métricas y los NUEVOS campos
 export interface AdminEvent extends UniversityEvent {
     status: 'published' | 'pending' | 'rejected';
     registrations: number; // Para estadísticas
     attendance: number;    // Para estadísticas
     rating: number;        // 1-10
+    // --- NUEVOS CAMPOS ---
+    capacity: number;      
+    commentsList: { user: string; text: string; rating: number }[];
 }
 
 export const useEventStore = defineStore('events', () => {
@@ -18,33 +21,47 @@ export const useEventStore = defineStore('events', () => {
 
      const loadEvents = () => {
         const stored = localStorage.getItem('uni_events');
+        
+        // Función helper para generar comentarios falsos (Integrada del código A)
+        const generateFakeComments = () => [
+            { user: 'Juan Pérez', text: 'Excelente organización, muy puntual.', rating: 10 },
+            { user: 'Maria L.', text: 'El audio falló un poco al final.', rating: 8 },
+            { user: 'Pedro S.', text: 'Muy interesante el tema expuesto.', rating: 9 }
+        ];
+
         if (stored) {
             const parsedEvents = JSON.parse(stored);
             
-            // --- CORRECCIÓN DE DATOS VIEJOS ---
-            // Mapeamos los eventos cargados para asegurar que tengan los campos nuevos
+            // --- CORRECCIÓN DE DATOS VIEJOS + INTEGRACIÓN NUEVOS ---
+            // Mapeamos los eventos cargados para asegurar que tengan todos los campos
             events.value = parsedEvents.map((e: any) => ({
                 ...e,
-                // Si ya tiene status lo deja, si no, pone 'published'
+                // Lógica existente (Código B)
                 status: e.status || 'published', 
-                // Si ya tiene registrations lo deja, si no, genera uno random o 0
                 registrations: e.registrations !== undefined ? e.registrations : Math.floor(Math.random() * 50),
                 attendance: e.attendance !== undefined ? e.attendance : Math.floor(Math.random() * 40),
-                // Si no tiene rating, le ponemos 5.0
-                rating: e.rating !== undefined ? e.rating : 5.0
+                rating: e.rating !== undefined ? e.rating : 9.5,
+                
+                // --- NUEVOS CAMPOS (Código A) ---
+                capacity: e.capacity || 100,
+                commentsList: e.commentsList || generateFakeComments()
             }));
             
-            // Guardamos la versión corregida
             saveToLocal();
 
         } else {
             // Carga inicial (semilla)
             events.value = initialEvents.map((e, index) => ({
                 ...e,
+                // Lógica existente (Código B)
                 status: index % 4 === 0 ? 'pending' : 'published',
-                registrations: Math.floor(Math.random() * 200),
-                attendance: Math.floor(Math.random() * 180),
-                rating: (Math.random() * 5) + 5
+                registrations: Math.floor(Math.random() * 80),
+                attendance: Math.floor(Math.random() * 60),
+                rating: 9.0, // Promedio base
+
+                // --- NUEVOS CAMPOS (Código A) ---
+                capacity: 100, // Cupo default
+                commentsList: generateFakeComments()
             }));
             saveToLocal();
         }
@@ -55,13 +72,16 @@ export const useEventStore = defineStore('events', () => {
     };
 
     const addEvent = (event: any) => {
-        const newEvent = { 
+        const newEvent: AdminEvent = { 
             ...event, 
             id: crypto.randomUUID(),
             status: 'pending', // Por defecto entra a revisión (RF02)
             registrations: 0,
             attendance: 0,
-            rating: 0
+            rating: 0,
+            // Inicializar nuevos campos para eventos nuevos creados manualmente
+            capacity: event.capacity ? Number(event.capacity) : 100,
+            commentsList: [] // Evento nuevo nace sin comentarios
         };
         events.value.push(newEvent);
         saveToLocal();
@@ -112,7 +132,6 @@ export const useEventStore = defineStore('events', () => {
 
     const pendingEvents = computed(() => events.value.filter(e => e.status === 'pending'));
 
-    // ... (deleteEvent y updateEvent se quedan igual o se ajustan si es necesario)
     const deleteEvent = (id: string) => {
         events.value = events.value.filter(e => e.id !== id);
         saveToLocal();
