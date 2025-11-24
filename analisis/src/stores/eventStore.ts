@@ -16,18 +16,35 @@ export const useEventStore = defineStore('events', () => {
     // Convertimos los eventos iniciales al nuevo tipo
     const events = ref<AdminEvent[]>([]);
 
-    const loadEvents = () => {
+     const loadEvents = () => {
         const stored = localStorage.getItem('uni_events');
         if (stored) {
-            events.value = JSON.parse(stored);
+            const parsedEvents = JSON.parse(stored);
+            
+            // --- CORRECCIÓN DE DATOS VIEJOS ---
+            // Mapeamos los eventos cargados para asegurar que tengan los campos nuevos
+            events.value = parsedEvents.map((e: any) => ({
+                ...e,
+                // Si ya tiene status lo deja, si no, pone 'published'
+                status: e.status || 'published', 
+                // Si ya tiene registrations lo deja, si no, genera uno random o 0
+                registrations: e.registrations !== undefined ? e.registrations : Math.floor(Math.random() * 50),
+                attendance: e.attendance !== undefined ? e.attendance : Math.floor(Math.random() * 40),
+                // Si no tiene rating, le ponemos 5.0
+                rating: e.rating !== undefined ? e.rating : 5.0
+            }));
+            
+            // Guardamos la versión corregida
+            saveToLocal();
+
         } else {
-            // Sembramos datos con estados variados para la demo
+            // Carga inicial (semilla)
             events.value = initialEvents.map((e, index) => ({
                 ...e,
-                status: index % 4 === 0 ? 'pending' : 'published', // Algunos pendientes
+                status: index % 4 === 0 ? 'pending' : 'published',
                 registrations: Math.floor(Math.random() * 200),
                 attendance: Math.floor(Math.random() * 180),
-                rating: (Math.random() * 5) + 5 // Rating entre 5 y 10
+                rating: (Math.random() * 5) + 5
             }));
             saveToLocal();
         }

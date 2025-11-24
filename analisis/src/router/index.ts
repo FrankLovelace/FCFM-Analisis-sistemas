@@ -9,8 +9,8 @@ import DashboardView from '../views/DashboardView.vue';
 import EventDetailView from '../views/EventDetailView.vue';
 import PaymentConfirmationView from '../views/PaymentConfirmationView.vue';
 import MyEventsView from '../views/MyEventsView.vue'; 
-import AdminApprovalsView from '../views/Admin/AdminApprovalsView.vue';
-import AdminReportsView from '../views/Admin/AdminReportsView.vue';
+import AdminApprovalsView from '../views/admin/AdminApprovalsView.vue';
+import AdminReportsView from '../views/admin/AdminReportsView.vue';
 
 const router = createRouter({
   history: createWebHistory(),

@@ -94,7 +94,9 @@ const getPercent = (val: number, total: number) => {
                         </td>
                         <td class="py-3 text-gray-500">{{ event.faculty }}</td>
                         <td class="py-3 text-right font-bold text-uni-blue">{{ event.registrations }}</td>
-                        <td class="py-3 text-right text-uni-gold">★ {{ event.rating.toFixed(1) }}</td>
+                       <td class="py-3 text-right text-uni-gold">
+    ★ {{ (event.rating || 0).toFixed(1) }}
+</td>
                     </tr>
                 </tbody>
             </table>
