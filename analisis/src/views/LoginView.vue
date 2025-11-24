@@ -63,7 +63,7 @@ const handleLogin = () => {
 };
 
 const goToRegister = () => {
-  alert('Registro de nuevos alumnos próximamente.');
+  router.push('/register'); // <--- 
 };
 </script>
 
