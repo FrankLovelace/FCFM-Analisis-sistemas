@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
+import EventDetailView from '../views/EventDetailView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,7 +13,13 @@ const router = createRouter({
       name: 'Home', 
       component: HomeView 
     },
-    
+
+    { // RUTA PÚBLICA: Detalle de Evento
+      path: '/event/:id', // :id es el parámetro dinámico
+      name: 'EventDetail', 
+      component: EventDetailView 
+    },
+
     // RUTA PÚBLICA: Login
     { 
       path: '/login', 

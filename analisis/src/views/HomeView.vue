@@ -5,6 +5,10 @@ import { useRouter } from 'vue-router';
 import { useEventStore } from '../stores/eventStore';
 import LoadingScreen from '../components/loadingScreen.vue';
 
+const goToDetail = (id: string) => {
+  router.push(`/event/${id}`);
+};
+
 const router = useRouter();
 const eventStore = useEventStore();
 
@@ -264,7 +268,7 @@ const goToLogin = () => router.push('/login');
 
                 <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                   <span class="text-uni-blue font-bold text-lg">{{ event.price }}</span>
-                  <button class="bg-gray-100 hover:bg-uni-blue hover:text-white text-gray-700 text-xs font-bold py-2 px-4 rounded transition-colors">
+                  <button @click="goToDetail(event.id)" class="bg-gray-100 hover:bg-uni-blue hover:text-white text-gray-700 text-xs font-bold py-2 px-4 rounded transition-colors">
                     Ver Detalles
                   </button>
                 </div>
@@ -303,11 +307,14 @@ const goToLogin = () => router.push('/login');
             
             <div class="space-y-4">
               <div v-for="event in pastEvents" :key="event.id" class="bg-white p-3 rounded shadow-sm border border-gray-200 flex gap-3 opacity-75 hover:opacity-100 transition-opacity">
-                <div class="w-16 h-16 bg-gray-300 rounded overflow-hidden flex-shrink-0">
+                <div class="w-16 h-16 bg-gray-300 rounded overflow-hidden flex-shrink-0 cursor-pointer" @click="goToDetail(event.id)">
                   <img :src="event.image" class="w-full h-full object-cover grayscale" alt="Pasado">
                 </div>
                 <div class="flex-1">
-                  <h4 class="text-xs font-bold text-gray-700 leading-tight mb-1 line-clamp-2">
+                  <h4 
+                    @click="goToDetail(event.id)"
+                    class="text-xs font-bold text-gray-700 leading-tight mb-1 line-clamp-2 cursor-pointer hover:text-uni-blue"
+                  >
                     {{ event.title }}
                   </h4>
                   <div class="text-[10px] text-gray-500 mb-1">Finalizó: {{ event.displayDate }}</div>
