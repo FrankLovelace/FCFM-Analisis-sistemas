@@ -8,16 +8,23 @@ import { usersDB, type User } from '../data/users';
 export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = ref(false);
     const currentUser = ref<User | null>(null);
-    const users = ref<User[]>([]); // Estado reactivo de usuarios
+    const users = ref<User[]>([]); // Array local de usuarios
     const router = useRouter();
 
-    // Cargar usuarios (Combina JSON estático + LocalStorage)
+    // --- CARGA DE DATOS (Vital) ---
     const loadUsers = () => {
         const storedUsers = localStorage.getItem('uni_users_db');
+        
         if (storedUsers) {
-            users.value = JSON.parse(storedUsers);
+            try {
+                users.value = JSON.parse(storedUsers);
+            } catch (e) {
+                console.error("Error leyendo DB local, reiniciando...", e);
+                users.value = [...usersDB];
+                saveUsers();
+            }
         } else {
-            // Carga inicial desde el archivo estático
+            // Si está vacío, cargamos el admin por defecto
             users.value = [...usersDB];
             saveUsers();
         }
@@ -27,51 +34,114 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('uni_users_db', JSON.stringify(users.value));
     };
 
-    // Validar sesión existente
+    // --- INICIALIZACIÓN AL RECARGAR F5 ---
     const initAuth = () => {
-        loadUsers(); // Aseguramos tener la DB cargada
+        loadUsers(); // SIEMPRE cargar usuarios primero
+
         const session = localStorage.getItem('uni_session');
-        const user = localStorage.getItem('uni_user');
-        if (session === 'valid' && user) {
-            isAuthenticated.value = true;
-            currentUser.value = JSON.parse(user);
+        const userStr = localStorage.getItem('uni_user');
+        
+        if (session === 'valid' && userStr) {
+            try {
+                const tempUser = JSON.parse(userStr);
+                // Buscamos la versión más fresca del usuario en el array
+                const freshUser = users.value.find(u => u.email === tempUser.email);
+                
+                if (freshUser) {
+                    isAuthenticated.value = true;
+                    currentUser.value = freshUser;
+                } else {
+                    logout(); // Si el usuario guardado no existe en la DB, salir
+                }
+            } catch (e) {
+                logout();
+            }
         }
     };
 
-    // LOGIN: Ahora busca en el estado 'users' dinámico
+    // --- LOGIN ---
     const login = (email: string, password: string): boolean => {
-        const userFound = users.value.find(u => u.email === email);
-        if (!userFound) return false;
+        loadUsers(); // Asegurar que tenemos la lista actualizada
 
-        const attemptHash = SHA256(password + email).toString(); // Salt = email
+        const userFound = users.value.find(u => u.email === email);
+        
+        if (!userFound) {
+            console.log("Usuario no encontrado en la lista");
+            return false;
+        }
+
+        // Generar hash: Pass + Email
+        const attemptHash = SHA256(password + email).toString();
 
         if (attemptHash === userFound.storedHash) {
             isAuthenticated.value = true;
             currentUser.value = userFound;
+            
             localStorage.setItem('uni_session', 'valid');
             localStorage.setItem('uni_user', JSON.stringify(userFound));
             return true;
         }
+        
+        console.log("Hash incorrecto");
         return false;
     };
 
-    // REGISTRO: Nuevo método
+    // --- REGISTRO ---
     const registerUser = (email: string, password: string) => {
-        // 1. Verificar duplicados
-        if (users.value.some(u => u.email === email)) return false;
+        loadUsers(); // Asegurar carga
 
-        // 2. Crear usuario con Hash
-        const newUser: User = {
-            email,
-            storedHash: SHA256(password + email).toString(),
-            name: 'Nuevo Alumno', // Nombre por defecto
-            role: 'student'       // Por defecto alumnos
-        };
+        // Validar duplicados
+        if (users.value.some(u => u.email === email)) {
+            console.log("Correo ya registrado");
+            return false;
+        }
 
-        // 3. Guardar
-        users.value.push(newUser);
-        saveUsers();
-        return true;
+        try {
+            const newUser: any = {
+                email,
+                storedHash: SHA256(password + email).toString(),
+                name: 'Nuevo Alumno', 
+                role: 'student',
+                registeredEventIds: []
+            };
+
+            users.value.push(newUser);
+            saveUsers(); // Guardar en localStorage
+            
+            console.log("Usuario registrado y guardado:", newUser);
+            return true;
+        } catch (error) {
+            console.error("Error al guardar usuario:", error);
+            return false;
+        }
+    };
+
+    // --- REGISTRAR EVENTO (LINKING) ---
+    const registerUserEvent = (eventId: string) => {
+        if (!currentUser.value) return;
+        loadUsers(); 
+
+        // Buscar usuario en el array principal
+        const index = users.value.findIndex(u => u.email === currentUser.value?.email);
+        
+        if (index !== -1) {
+            const user = users.value[index] as any;
+            
+            // Inicializar array si hace falta
+            if (!user.registeredEventIds) user.registeredEventIds = [];
+
+            // Evitar duplicados
+            if (!user.registeredEventIds.includes(eventId)) {
+                user.registeredEventIds.push(eventId);
+                
+                // Guardar cambios
+                users.value[index] = user;
+                currentUser.value = user; // Actualizar estado actual
+                
+                saveUsers(); // Persistir DB
+                localStorage.setItem('uni_user', JSON.stringify(user)); // Persistir sesión
+            }
+        }
     };
 
     const logout = () => {
@@ -82,8 +152,18 @@ export const useAuthStore = defineStore('auth', () => {
         router.push('/login');
     };
 
-    // Helper para verificar si existe el correo antes de enviar código
-    const emailExists = (email: string) => users.value.some(u => u.email === email);
-
-    return { isAuthenticated, currentUser, login, logout, initAuth, registerUser, emailExists };
+    return { 
+        isAuthenticated, 
+        currentUser, 
+        users,
+        login, 
+        logout, 
+        initAuth, 
+        registerUser, 
+        emailExists: (email: string) => {
+            loadUsers();
+            return users.value.some(u => u.email === email);
+        },
+        registerUserEvent 
+    };
 });

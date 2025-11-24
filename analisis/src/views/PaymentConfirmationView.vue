@@ -53,10 +53,11 @@ const handlePayment = () => {
       alert("Por favor completa todos los campos requeridos.");
       return;
   }
-  
-  // Aquí iría la integración con pasarela de pago real
-  alert("¡Pago procesado y registro completado!");
-  router.push('/'); // Volver al inicio
+  // 1. Guardar inscripción
+  authStore.registerUserEvent(eventId);
+// 2. Feedback y Redirección
+  alert("¡Pago procesado y registro completado! Puedes verlo en 'Mis Eventos'.");
+  router.push('/my-events'); // <--- Redirigir a la nueva vista
 };
 </script>
 
