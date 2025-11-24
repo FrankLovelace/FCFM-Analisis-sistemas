@@ -10,6 +10,7 @@ import MyEventsView from '../views/MyEventsView.vue';
 import AdminApprovalsView from '../views/admin/AdminApprovalsView.vue';
 import AdminReportsView from '../views/admin/AdminReportsView.vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import AdminLoginView from '../views/AdminLoginView.vue';
 
 const router = createRouter({
   // CAMBIO AQUÍ: Usar Hash en lugar de WebHistory
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/login', 
       name: 'Login', 
       component: LoginView 
+    },
+     { 
+      path: '/admin-login', 
+      name: 'AdminLogin', 
+      component: AdminLoginView 
     },
 
     // 3. REGISTRO
