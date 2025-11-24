@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
-import HomeView from '../views/HomeView.vue'; // Asegúrate de crear este archivo
+import HomeView from '../views/HomeView.vue'; 
 
 // Haremos lazy loading del dashboard para mejor práctica
 const DashboardView = () => import('../views/DashboardView.vue');
