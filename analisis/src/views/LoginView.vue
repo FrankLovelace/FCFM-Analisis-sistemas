@@ -69,7 +69,7 @@ const goHome = () => router.push('/'); // Acción para volver
              <h2 class="text-xl font-bold text-[#e6b012] mt-1 tracking-widest uppercase">Servicios en Línea</h2>
            </div>
            <div class="w-16 md:w-20">
-             <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Uanl_logo.png" alt="Logo" class="w-full h-auto object-contain">
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Logo_de_la_UANL.svg/1200px-Logo_de_la_UANL.svg.png" alt="Logo" class="w-full h-auto object-contain">
            </div>
         </div>
       </div>

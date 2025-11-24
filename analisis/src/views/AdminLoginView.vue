@@ -13,26 +13,29 @@ const errorMsg = ref('');
 
 const handleLogin = () => {
   errorMsg.value = '';
+  
   if (!email.value || !password.value) {
-    errorMsg.value = 'Completa las credenciales.';
+    errorMsg.value = 'Ocurrió un problema al procesar la solicitud: Completa las credenciales.';
     return;
   }
+  
   const success = authStore.login(email.value, password.value);
 
   if (success) {
     // Validar Rol ADMIN
     if (authStore.currentUser?.role !== 'admin') {
-        errorMsg.value = 'No tienes permisos de administrador.';
+        errorMsg.value = 'Ocurrió un problema al procesar la solicitud: No tienes permisos de administrador.';
         authStore.logout();
         return;
     }
     router.push('/admin'); // Ir al Dashboard
   } else {
-    errorMsg.value = 'Credenciales inválidas.';
+    errorMsg.value = 'Ocurrió un problema al procesar la solicitud: Credenciales inválidas.';
   }
 };
 
 const goToUserLogin = () => router.push('/login');
+const goHome = () => router.push('/');
 </script>
 
 <template>
@@ -40,7 +43,15 @@ const goToUserLogin = () => router.push('/login');
     
     <div class="bg-white w-full max-w-md rounded-lg shadow-2xl p-8 relative z-10 mx-4 border-t-8 border-uni-blue">
       
-      <div class="text-center mb-6">
+      <!-- Botón Volver -->
+      <button 
+        @click="goHome"
+        class="absolute top-4 left-4 text-gray-400 hover:text-uni-blue text-xs font-bold"
+      >
+        ← Inicio
+      </button>
+
+      <div class="text-center mb-6 mt-2">
         <h1 class="text-2xl font-bold text-uni-blue">Portal Administrativo</h1>
         <p class="text-gray-500 text-sm">Gestión de Eventos UANL</p>
       </div>
@@ -74,6 +85,9 @@ const goToUserLogin = () => router.push('/login');
 
     </div>
     
-    <div v-if="errorMsg" class="absolute bottom-10 bg-red-600 text-white px-6 py-2 rounded shadow">{{ errorMsg }}</div>
+    <!-- Error Estandarizado -->
+    <div v-if="errorMsg" class="absolute bottom-10 w-[90%] md:w-auto text-center bg-red-600 text-white px-6 py-3 rounded shadow font-bold animate-bounce">
+        {{ errorMsg }}
+    </div>
   </div>
 </template>
