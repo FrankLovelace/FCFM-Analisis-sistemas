@@ -1,6 +1,4 @@
 // src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
-
 // IMPORTACIÓN DE VISTAS
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
@@ -11,9 +9,11 @@ import PaymentConfirmationView from '../views/PaymentConfirmationView.vue';
 import MyEventsView from '../views/MyEventsView.vue'; 
 import AdminApprovalsView from '../views/admin/AdminApprovalsView.vue';
 import AdminReportsView from '../views/admin/AdminReportsView.vue';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const router = createRouter({
-  history: createWebHistory(),
+  // CAMBIO AQUÍ: Usar Hash en lugar de WebHistory
+  history: createWebHashHistory(),
   routes: [
     // 1. HOME (Pública)
     { 
