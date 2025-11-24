@@ -3,7 +3,21 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SHA256 from 'crypto-js/sha256';
-import { usersDB, type User } from '../data/users';
+// Nota: Quitamos 'type User' del import para usar la definición local actualizada
+import { usersDB } from '../data/users'; 
+
+// 1. ACTUALIZA LA INTERFAZ USER (Agrega los campos opcionales nuevos)
+export interface User {
+    email: string;
+    storedHash: string;
+    name: string;
+    role: 'admin' | 'student';
+    registeredEventIds?: string[];
+    // Nuevos campos para Responsables:
+    paternalName?: string;
+    maternalName?: string;
+    assignedDependency?: string; 
+}
 
 export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = ref(false);
@@ -20,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
                 users.value = JSON.parse(storedUsers);
             } catch (e) {
                 console.error("Error leyendo DB local, reiniciando...", e);
-                users.value = [...usersDB];
+                users.value = [...usersDB]; // Cast as User[] si es necesario
                 saveUsers();
             }
         } else {
@@ -86,7 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
         return false;
     };
 
-    // --- REGISTRO ---
+    // --- REGISTRO ALUMNO (Estándar) ---
     const registerUser = (email: string, password: string) => {
         loadUsers(); // Asegurar carga
 
@@ -97,7 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
 
         try {
-            const newUser: any = {
+            const newUser: User = {
                 email,
                 storedHash: SHA256(password + email).toString(),
                 name: 'Nuevo Alumno', 
@@ -116,6 +130,32 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    // 2. NUEVA FUNCIÓN PARA REGISTRAR RESPONSABLES (ADMINS)
+    const registerResponsible = (userData: any) => {
+        loadUsers(); // Asegurar carga
+
+        if (users.value.some(u => u.email === userData.email)) {
+            alert("El correo ya está registrado.");
+            return false;
+        }
+
+        const newUser: User = {
+            email: userData.email,
+            // Generamos el hash con la contraseña asignada
+            storedHash: SHA256(userData.password + userData.email).toString(),
+            name: userData.name, // Nombre completo (Nombre + Apellidos)
+            paternalName: userData.paternalName,
+            maternalName: userData.maternalName,
+            assignedDependency: userData.dependency, // Mapeo correcto del form al store
+            role: 'admin', // Los responsables son admins
+            registeredEventIds: []
+        };
+
+        users.value.push(newUser);
+        saveUsers();
+        return true;
+    };
+
     // --- REGISTRAR EVENTO (LINKING) ---
     const registerUserEvent = (eventId: string) => {
         if (!currentUser.value) return;
@@ -125,7 +165,8 @@ export const useAuthStore = defineStore('auth', () => {
         const index = users.value.findIndex(u => u.email === currentUser.value?.email);
         
         if (index !== -1) {
-            const user = users.value[index] as any;
+            const user = users.value[index];
+            if (!user) return;
             
             // Inicializar array si hace falta
             if (!user.registeredEventIds) user.registeredEventIds = [];
@@ -159,7 +200,8 @@ export const useAuthStore = defineStore('auth', () => {
         login, 
         logout, 
         initAuth, 
-        registerUser, 
+        registerUser,
+        registerResponsible, // <--- Exportamos la nueva función
         emailExists: (email: string) => {
             loadUsers();
             return users.value.some(u => u.email === email);

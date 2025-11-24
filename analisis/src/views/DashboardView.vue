@@ -9,13 +9,14 @@ import type { UniversityEvent } from '../data/initialEvents';
 import AdminApprovalsView from './admin/AdminApprovalsView.vue';
 import AdminReportsView from './admin/AdminReportsView.vue';
 import AdminEventList from '../components/AdminEventList.vue';
+import AdminRegistryView from './admin/AdminRegistryView.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const eventStore = useEventStore();
 
 // --- Estado de Navegación (Pestañas) ---
-const currentTab = ref<'events' | 'approvals' | 'reports'>('events');
+const currentTab = ref<'events' | 'approvals' | 'reports' | 'registry'>('events');
 
 // --- Estados del Modal y Formulario ---
 const isModalOpen = ref(false);
@@ -145,6 +146,13 @@ const saveEvent = () => {
         >
             📊 Reportes
         </button>
+        <button 
+    @click="currentTab = 'registry'"
+    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+    :class="currentTab === 'registry' ? 'bg-blue-800 text-white' : 'hover:bg-blue-700 text-blue-100'"
+>
+    📝 Registros
+</button>
       </nav>
 
       <div class="p-4 border-t border-blue-800 mt-auto bg-uni-blue">
@@ -171,7 +179,8 @@ const saveEvent = () => {
 
       <!-- VISTA 3: REPORTES -->
       <AdminReportsView v-if="currentTab === 'reports'" />
-
+      <!-- VISTA 4: REGISTROS -->
+<AdminRegistryView v-if="currentTab === 'registry'" />
     </main>
 
     <!-- MODAL (Formulario flotante) -->
