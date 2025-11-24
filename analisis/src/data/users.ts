@@ -1,4 +1,5 @@
 // src/data/users.ts
+
 export interface User {
     email: string;
     storedHash: string;
@@ -9,14 +10,16 @@ export interface User {
 export const usersDB: User[] = [
     {
         email: 'admin@uanl.edu.mx',
-        storedHash: '94d13f36035029a1b89cc594191d4e0220d6d585e8d5fc9e54d671239922245b',
+        // Hash de "admin123" + "admin@uanl.edu.mx"
+        storedHash: '4e18b812e1a878b963925a5431d9c853bf2534331952e259f65369cdbb74a8e6',
         name: 'Administrador UANL',
         role: 'admin'
     },
     {
         email: 'alumno@uanl.edu.mx',
-        storedHash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 
-        name: 'Juan Pérez (Alumno)',
+        // Hash de "alumno123" + "alumno@uanl.edu.mx"
+        storedHash: '97e4e938fbac626d21f6a9f4383529e5701467da27208197915ea738890afae8', 
+        name: 'Juan Pérez',
         role: 'student'
     }
 ];

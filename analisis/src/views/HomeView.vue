@@ -3,6 +3,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEventStore } from '../stores/eventStore';
+import { useAuthStore } from '../stores/AuthStore';
 import LoadingScreen from '../components/loadingScreen.vue';
 
 const goToDetail = (id: string) => {
@@ -11,11 +12,14 @@ const goToDetail = (id: string) => {
 
 const router = useRouter();
 const eventStore = useEventStore();
+const authStore = useAuthStore();
 
 // --- Estado de Carga ---
 const isLoading = ref(true);
+const showUserMenu = ref(false);
 
 onMounted(() => {
+   authStore.initAuth();
   eventStore.loadEvents();
   // Simulación de carga visual
   setTimeout(() => { isLoading.value = false; }, 1000);
@@ -29,6 +33,11 @@ const filters = ref({
   modality: '',  // '' = Todas
   price: ''      // '' = Todos
 });
+const handleLogout = () => {
+  showUserMenu.value = false;
+  authStore.logout();
+  // Opcional: Recargar o limpiar filtros
+};
 
 // Para no filtrar en cada tecla, usamos un estado "aplicado"
 const appliedFilters = ref({ ...filters.value });
@@ -93,14 +102,13 @@ const goToLogin = () => router.push('/login');
     
     <!-- HEADER ESTILO UANL -->
     <header class="bg-white shadow-sm relative z-10">
-      <!-- Barra superior dorada -->
       <div class="h-1 bg-uni-gold w-full"></div>
       
       <div class="container mx-auto px-4">
         <div class="h-20 flex items-center justify-between">
-          <!-- Logo -->
+          
+          <!-- LOGO (Izquierda) -->
           <div class="flex items-center gap-3 cursor-pointer" @click="resetFilters">
-            <!-- Logo simulado UANL -->
             <div class="w-10 h-10 border-2 border-uni-blue rounded-full flex items-center justify-center p-0.5">
                <div class="w-full h-full bg-uni-blue rounded-full text-white flex items-center justify-center text-xs font-serif font-bold">U</div>
             </div>
@@ -110,20 +118,70 @@ const goToLogin = () => router.push('/login');
             </div>
           </div>
           
-          <!-- Nav Desktop -->
+          <!-- NAV (Centro - Desktop) -->
           <nav class="hidden md:flex gap-8 h-full items-end pb-5 text-sm font-bold text-gray-500">
             <a href="#" class="text-uni-blue border-b-4 border-uni-blue pb-1 transition-all">Eventos</a>
             <a href="#" class="hover:text-uni-blue hover:border-b-4 hover:border-uni-blue pb-1 transition-all">Mis Eventos</a>
             <a href="https://www.uanl.mx/" target="_blank" class="hover:text-uni-blue pb-1 transition-all">Vida Estudiantil</a>
           </nav>
 
-          <!-- Botón Login -->
-          <button 
-            @click="goToLogin"
-            class="bg-gradient-to-r from-uni-gold to-uni-gold-dark text-white text-sm font-bold py-2 px-6 rounded shadow hover:shadow-md transition-all transform hover:-translate-y-0.5"
-          >
-            Iniciar Sesión
-          </button>
+          <!-- ZONA DE USUARIO (Derecha) -->
+          <div>
+            
+            <!-- OPCIÓN A: NO ESTÁ LOGUEADO (Botón Dorado) -->
+            <button 
+              v-if="!authStore.isAuthenticated"
+              @click="goToLogin"
+              class="bg-gradient-to-r from-uni-gold to-uni-gold-dark text-white text-sm font-bold py-2 px-6 rounded shadow hover:shadow-md transition-all transform hover:-translate-y-0.5"
+            >
+              Iniciar Sesión
+            </button>
+
+            <!-- OPCIÓN B: SÍ ESTÁ LOGUEADO (Menú Blanco) -->
+            <div v-else class="relative">
+              
+              <button 
+                @click="showUserMenu = !showUserMenu"
+                class="flex items-center gap-2 text-uni-blue font-bold text-sm border border-gray-200 bg-gray-50 hover:bg-white py-2 px-4 rounded-full shadow-sm transition-colors"
+              >
+                <div class="w-6 h-6 bg-uni-blue text-white rounded-full flex items-center justify-center text-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                </div>
+                <!-- Muestra el correo actual -->
+                <span class="max-w-[100px] md:max-w-[150px] truncate">{{ authStore.currentUser?.email }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+              </button>
+
+              <!-- Menú Desplegable -->
+              <div 
+                v-if="showUserMenu"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50"
+              >
+                <div class="px-4 py-3 border-b border-gray-100 text-xs text-gray-500">
+                  Rol actual: <br>
+                  <span class="font-bold text-uni-blue uppercase text-xs">{{ authStore.currentUser?.role === 'admin' ? 'Administrativo' : 'Estudiante' }}</span>
+                </div>
+
+                <!-- Botón Admin (Solo si es admin) -->
+                <router-link 
+                  v-if="authStore.currentUser?.role === 'admin'"
+                  to="/admin"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-uni-blue"
+                >
+                  Panel Administrativo
+                </router-link>
+
+                <button 
+                  @click="handleLogout"
+                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold flex items-center gap-2"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+            <!-- Fin Opción B -->
+
+          </div>
         </div>
       </div>
     </header>
