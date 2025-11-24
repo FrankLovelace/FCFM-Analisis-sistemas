@@ -120,9 +120,7 @@ const goToLogin = () => router.push('/login');
           
    
           <nav class="hidden md:flex gap-8 h-full items-end pb-5 text-sm font-bold text-gray-500">
-            <a href="#" class="text-uni-blue border-b-4 border-uni-blue pb-1 transition-all">Eventos</a>
-         <nav class="hidden md:flex gap-8 h-full items-end pb-5 text-sm font-bold text-gray-500">
-    
+
     <!-- Enlace a Eventos (Home) -->
     <router-link 
         to="/" 
@@ -143,8 +141,6 @@ const goToLogin = () => router.push('/login');
     
     <a href="https://www.uanl.mx/" target="_blank" class="hover:text-uni-blue pb-1 transition-all">Vida Estudiantil</a>
 </nav>
-            <a href="https://www.uanl.mx/" target="_blank" class="hover:text-uni-blue pb-1 transition-all">Vida Estudiantil</a>
-          </nav>
 
           <!-- ZONA DE USUARIO (Derecha) -->
           <div>
