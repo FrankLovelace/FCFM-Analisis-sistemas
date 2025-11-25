@@ -10,13 +10,14 @@ import AdminApprovalsView from './admin/AdminApprovalsView.vue';
 import AdminReportsView from './admin/AdminReportsView.vue';
 import AdminEventList from '../components/AdminEventList.vue';
 import AdminRegistryView from './admin/AdminRegistryView.vue';
+import AdminDraftsView from './admin/AdminDraftsView.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const eventStore = useEventStore();
 
 // --- Estado de Navegación (Pestañas) ---
-const currentTab = ref<'events' | 'approvals' | 'reports' | 'registry'>('events');
+const currentTab = ref<'events' | 'approvals' | 'reports' | 'registry' | 'drafts'>('events');
 
 // --- Estados del Modal y Formulario ---
 const isModalOpen = ref(false);
@@ -147,6 +148,13 @@ const saveEvent = () => {
             📊 Reportes
         </button>
         <button 
+    @click="currentTab = 'drafts'"
+    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+    :class="currentTab === 'drafts' ? 'bg-blue-800 text-white' : 'hover:bg-blue-700 text-blue-100'"
+>
+    📝 Mis Borradores
+</button>
+        <button 
     @click="currentTab = 'registry'"
     class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
     :class="currentTab === 'registry' ? 'bg-blue-800 text-white' : 'hover:bg-blue-700 text-blue-100'"
@@ -180,7 +188,13 @@ const saveEvent = () => {
       <!-- VISTA 3: REPORTES -->
       <AdminReportsView v-if="currentTab === 'reports'" />
       <!-- VISTA 4: REGISTROS -->
-<AdminRegistryView v-if="currentTab === 'registry'" />
+      <!-- VISTA 5: BORRADORES -->
+      <AdminRegistryView v-if="currentTab === 'registry'" />
+<AdminDraftsView 
+    v-if="currentTab === 'drafts'" 
+    @create="openCreateModal"
+    @edit="openEditModal"
+/>
     </main>
 
     <!-- MODAL (Formulario flotante) -->
